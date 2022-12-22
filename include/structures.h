@@ -1,7 +1,11 @@
 #pragma once
 
 #include <cstdint>
-
+#include <array>
+/**
+ * @brief https://github.com/sk-zk/map-docs/wiki/Item-type-IDs
+ * 
+ */
 enum class ItemTypeID : uint8_t
 {
   TERRAIN         = 0x01,
@@ -38,4 +42,27 @@ enum class ItemTypeID : uint8_t
   CUTSCENE        = 0x2E,
   HOOKUP          = 0x2F,
   VISIBILITY_AREA = 0x30
+};
+/**
+ * @brief https://github.com/sk-zk/map-docs/wiki/kDOP-bounding-box
+ * 
+ */
+struct KDOP{
+  std::array<float, 5> minimums;
+  std::array<float, 5> maximums;
+};
+/**
+ * @brief https://github.com/sk-zk/map-docs/wiki/kDOP-item
+ * 
+ */
+struct KDOP_ITEM{
+  ItemTypeID item_type;
+  /// The UID of the item.
+  uint64_t uid;
+  /// kDOP bounding box
+  KDOP kdop;
+  /// Despite the semantics, this is the main flag field for every item type, with each using different, item-specific flags.
+  uint32_t flags;
+  /// View distance of the item in meters, divided by 10. Default is 400m. The maximum the game will let you use is 1500m.
+  uint8_t view_list;
 };
