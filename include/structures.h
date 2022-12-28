@@ -10,6 +10,21 @@
 using token = uint64_t;
 
 /**
+ * @brief https://github.com/sk-zk/map-docs/wiki/Header
+ * 
+ */
+struct Header{
+  /// The map format version. The current version as of 1.43 is 891.
+  uint32_t core_map_version;
+  /// Always euro2, in both ETS2 and ATS.
+  token game_id;
+  /// Always 3. Don't know what this does.
+  uint32_t game_map_version;
+};
+
+
+
+/**
  * @brief https://github.com/sk-zk/map-docs/wiki/Item-type-IDs
  *
  */
@@ -56,8 +71,8 @@ enum class ItemTypeID : uint8_t
  */
 struct KDOP
 {
-  std::array<float, 5> minimums;
-  std::array<float, 5> maximums;
+  float minimums[5];
+  float maximums[5];
 };
 /**
  * @brief https://github.com/sk-zk/map-docs/wiki/kDOP-item
@@ -136,7 +151,7 @@ struct KDOP_ITEM
  */
 struct BusStop{
   /// kDop item
-  ItemTypeID item_type;
+  KDOP_ITEM kdop_item;
   /// The city this is a bus stop for, as defined in /def/city.sii. The map must contain a City item with the same token,
   /// or the game will log the error "Failed to find city for bus stop".
   token city_name;
@@ -151,7 +166,7 @@ struct BusStop{
  */
 struct City{
   /// kDop item
-  ItemTypeID item_type;
+  KDOP_ITEM kdop_item;
   /// Unit name of the city, as defined in /def/city.sii.
   token city;
   /// Width and height of the area.
@@ -166,7 +181,7 @@ struct City{
  */
 struct Company{
   /// kDop item
-  ItemTypeID item_type;
+  KDOP_ITEM kdop_item;
   /// Name of the company.
   token company_name;
   /// The city this company is in, as defined in /def/city.sii.
@@ -193,7 +208,7 @@ struct Company{
  */
 struct CutPlane{
   /// kDop item
-  ItemTypeID item_type;
+  KDOP_ITEM kdop_item;
   /// UIDs of nodes of this item.
   /// The path of the item is determined only by the order of nodes in this list.
   uint32_t node_count;
@@ -206,7 +221,7 @@ struct CutPlane{
  */
 struct Ferry{
   /// kDop item
-  ItemTypeID item_type;
+  KDOP_ITEM kdop_item;
   /// Unit name of the ferry port, as defined in /def/ferry.
   token ferry_name;
   /// UID of the prefab this ferry is linked to.
@@ -223,7 +238,7 @@ struct Ferry{
  */
 struct Garage{
   /// kDop item
-  ItemTypeID item_type;
+  KDOP_ITEM kdop_item;
   /// The city this is a garage for, as defined in /def/city.sii.
   /// The map must contain a City item with the same token, or the game will log the error "Failed to find city for garage".
   token city_name;
@@ -243,7 +258,7 @@ struct Garage{
  */
 struct MapArea{
   /// kDop item
-  ItemTypeID item_type;
+  KDOP_ITEM kdop_item;
   /// UIDs of the nodes of the polygon.
   uint32_t node_count;
   std::vector<uint64_t> node_uids;
@@ -257,7 +272,7 @@ struct MapArea{
  */
 struct MapOverlay{
   /// kDop item
-  ItemTypeID item_type;
+  KDOP_ITEM kdop_item;
   /// The road name image / city name to use.
   token look_name;
   /// UID of the node of this item.
@@ -309,17 +324,22 @@ struct PrefabNode{
   uint16_t detail_veg_distance_min;
   uint16_t detail_veg_distance;
   /// Two Vegetation structs ?
-  Vegetation str1; // ?
-  Vegetation str2; // ?
+  Vegetation strt[2];
 };
 
+struct NodeInfos{
+  token ter_profile;
+  float ter_profile_coef;
+};
 
-
-
+/**
+ * @brief https://github.com/sk-zk/map-docs/wiki/Prefab
+ * 
+ */
 struct Prefab{
-  struct Base{
+  // struct Base{
   /// kDop item
-  ItemTypeID item_type;
+  KDOP_ITEM item_type;
   /// The unit name of the prefab.
   token prefab_model;
   /// The model variant.
@@ -345,36 +365,162 @@ struct Prefab{
   /// token ter_profile
   /// float ter_profile_coef
   /// Terrain profile and coefficient for the terrain assigned to this node.
-  // >>>  array_struct node_infos // ??
-
+  std::vector<NodeInfos> node_infos;
   /// Semaphore profile for this prefab.
   token semaphore_profile;
-  };
-  struct Data{
-    /// The model look.
-    token prefab_look;
-    /// Repeated 6 times, regardless of how many nodes or corners the prefab has.
-    std::vector<PrefabNode> node_infos;
-    /// List of vegetation parts. 
-    uint32_t vegetation_part_count;
-    std::vector<Vegetation> vegetation_parts;
-    /// The seed used for placing vegetation.
-    uint32_t rnd_seed;
-    /// See Vegetation sphere struct.
-    uint32_t veg_sphere_count;
-    std::vector<VegetationSphere> veg_spheres;
-    /// The seed used for placing vegetation.
-    uint32_t rnd_seed;
-    ///Corner models:
-    /// token corner_model
-    /// token corner_variant
-    /// token corner_look
-    /// Repeated 6 times, regardless of how many nodes or corners the prefab has.
-    // array_struct corners ???
 
-    /// Terrain data. See Quad info struct.
-    /// Repeated 6 times, regardless of how many nodes or corners the prefab has.
-    // array_struct quads 
-    // ToDo add from  https://github.com/sk-zk/map-docs/wiki/Quad-Info-Struct
-  };
+  // };
+  // struct Data{
+  //   /// The model look.
+  //   token prefab_look;
+  //   /// Repeated 6 times, regardless of how many nodes or corners the prefab has.
+  //   std::array<PrefabNode, 6> node_infos; // std::vector<PrefabNode> node_infos;
+  //   /// List of vegetation parts. 
+  //   uint32_t vegetation_part_count;
+  //   std::vector<Vegetation> vegetation_parts;
+  //   /// The seed used for placing vegetation.
+  //   uint32_t rnd_seed;
+  //   /// See Vegetation sphere struct.
+  //   uint32_t veg_sphere_count;
+  //   std::vector<VegetationSphere> veg_spheres;
+  //   /// The seed used for placing vegetation.
+  //   uint32_t rnd_seed;
+  //   ///Corner models:
+  //   /// token corner_model
+  //   /// token corner_variant
+  //   /// token corner_look
+  //   /// Repeated 6 times, regardless of how many nodes or corners the prefab has.
+  //   // array_struct corners ???
+  //   /// Terrain data. See Quad info struct.
+  //   /// Repeated 6 times, regardless of how many nodes or corners the prefab has.
+  //   // array_struct quads 
+  //   // ToDo add from  https://github.com/sk-zk/map-docs/wiki/Quad-Info-Struct
+  // };
+
+};
+
+/**
+ * @brief https://github.com/sk-zk/map-docs/wiki/Road
+ * 
+ */
+struct Road{
+  /// kDop item
+  KDOP_ITEM kdop_item;
+  uint32_t road_flags;
+  /// Unit name of the road.
+  token road_look;
+  /// Road variant on the right and left side.
+  /// On single carriageways, only the right variant is used and the left side is ignored.
+  token right_tmpl_variant;
+  token left_tmpl_variant;
+  /// Edge models.
+  token right_edge_right;
+  token right_edge_left;
+  token left_edge_right;
+  token left_edge_left;
+  /// Terrain profile and coefficient on the right and left side.
+  token right_profile;
+  float right_profile_coef;
+  token left_profile;
+  float left_profile_coef;
+  /// Road look on the right and left side.
+  /// On single carriageways, only the right variant is used and the left side is ignored.
+  token right_tmpl_look;
+  token left_tmpl_look;
+  /// Road material for legacy roads. Has no effect on template roads.
+  token road_material;
+  /// Railings and their offset, multiplied by 100. This is repeated three times because there are three models per side.
+  token right_railing;
+  int16_t right_railing_offset;
+  token left_railing;
+  int16_t left_railing_offset;
+  /// Road height offsets, multiplied by 100.
+  /// For single carriageways, the left offset only affects the left terrain.
+  int32_t right_road_height;
+  int32_t left_road_height;
+  /// The UIDs of the backward and forward nodes of the road.
+  uint64_t node0_uid;
+  uint64_t node1_uid;
+  /// Cached length of the road segment. See Polyline item.
+  /// The minimum length of a road is >0.4m for Superfine, 1.25m for High Poly, and 3.75m for normal resolution. The maximum length of a road is 1000m.
+  float length;
+};
+
+
+struct SignBoard{
+  /// Symbol of the road.
+  token road;
+  /// City names.
+  /// All of the above are overlays defined in /def/world/overlay.sii.
+  token city1;
+  token city2;
+};
+
+struct SignOverrideAtributes{
+  /// Data type:
+  /// 1 = sbyte
+  /// 2 = int32
+  /// 3 = uint32
+  /// 4 = float
+  /// 5 = string
+  /// 6 = uint64
+  uint16_t type;
+  /// Index of the overridden attribute in the sign item's sign_template_* definition.
+  uint32_t index;
+  /// The new value of the attribute, with the type specified above.
+
+};
+
+
+struct SignOverride{
+  /// The ID of the sign item being changed, as defined by its sign_board_template.
+  uint32_t id;
+  /// The name of the sign area that is being changed (e.g. "ml7"), as defined by its sign_template_board_binding.
+  token area_name;
+  /// Index of the overridden attribute in the sign item's sign_template_* definition.
+  uint32_t attribute_count;
+  /// The new value of the attribute, with the type specified above.
+  std::vector<uint64_t> value; // [?] [?]value ???
+};
+
+
+
+/**
+ * @brief https://github.com/sk-zk/map-docs/wiki/Sign
+ * 
+ */
+struct Sign{
+    /// kDop item
+  KDOP_ITEM kdop_item;
+  /// Unit name of the sign model as defined in /def/world/sign.sii.
+  token sign_model;
+  /// UID of the node of the item.
+  uint64_t node_uid;
+  /// Self-explanatory.
+  token sign_look;
+  token sign_variant;
+  /// For legacy navigation signs: boards on the sign.
+  /// AFAIK, there are either 0 or 3 entries, even if the sign has 1 or 2 boards.
+  /// See Sign board struct.
+  uint8_t board_count;
+  std::vector<SignBoard> sign_boards;
+  /// For template signs, this is the name of the template, as defined in /def/sign/templates.sii. This is not a token, but the full unit name as a string, e.g. "sign_templ.it_51".
+  std::string override_template;
+};
+
+/**
+ * @brief https://github.com/sk-zk/map-docs/wiki/Visibility-Area
+ * 
+ */
+struct VisibilityArea{
+  /// kDop item
+  KDOP_ITEM kdop_item;
+  /// UID of the node of the item.
+  uint64_t node_uid;
+  /// Width and height of the area, divided by 2.
+  float width;
+  float height;
+  /// UIDs of the child objects of this area. Can reference both base items and aux items.
+  uint32_t children_count;
+  std::vector<token> child_uid;
 };

@@ -9,5 +9,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 add_executable(map-docs
+                include/structures.h
                 src/main.cpp
                 )
